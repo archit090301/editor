@@ -7,17 +7,118 @@ import Profile from './pages/Profile';
 import CollabRoom from './pages/CollabRoom';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
-import AdminDashboard from './pages/AdminDashboard'; // ✅ Make sure this exists
+import AdminDashboard from './pages/AdminDashboard';
 import { useTheme } from './ThemeContext';
 import './theme.css';
 
 axios.defaults.baseURL = 'http://localhost:5000';
 axios.defaults.withCredentials = true;
 
+function Home({ onLogin, onRegister, onViewDemo }) {
+  return (
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 50%, #fbc2eb 100%)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '20px'
+    }}>
+      <div style={{
+        background: 'rgba(255, 255, 255, 0.15)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        borderRadius: '16px',
+        padding: '40px',
+        maxWidth: '650px',
+        width: '100%',
+        textAlign: 'center',
+        color: '#fff',
+        boxShadow: '0 8px 32px rgba(31, 38, 135, 0.37)'
+      }}>
+        <h1 style={{
+          fontSize: '2.8rem',
+          fontWeight: 'bold',
+          marginBottom: '20px',
+          color: '#fff'
+        }}>
+          🚀 Code, Test & Deploy Effortlessly
+        </h1>
+
+        <p style={{
+          fontSize: '1.1rem',
+          lineHeight: '1.6',
+          marginBottom: '30px',
+          color: '#f0f0f0'
+        }}>
+          An elegant cloud-based code editor with real-time collaboration, project management, and instant deployment.
+        </p>
+
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', flexWrap: 'wrap' }}>
+          <button
+            onClick={onRegister}
+            style={{
+              background: 'linear-gradient(90deg, #6a11cb 0%, #2575fc 100%)',
+              border: 'none',
+              padding: '12px 24px',
+              color: '#fff',
+              borderRadius: '8px',
+              fontSize: '1rem',
+              cursor: 'pointer',
+              fontWeight: '600',
+              transition: 'transform 0.2s ease'
+            }}
+            onMouseOver={(e) => e.target.style.transform = 'scale(1.05)'}
+            onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
+          >
+            Get Started Free
+          </button>
+
+          <button
+            onClick={onViewDemo}
+            style={{
+              background: 'rgba(255, 255, 255, 0.2)',
+              border: '1px solid rgba(255, 255, 255, 0.4)',
+              padding: '12px 24px',
+              color: '#fff',
+              borderRadius: '8px',
+              fontSize: '1rem',
+              cursor: 'pointer',
+              fontWeight: '600',
+              transition: 'transform 0.2s ease'
+            }}
+            onMouseOver={(e) => e.target.style.transform = 'scale(1.05)'}
+            onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
+          >
+            View Demo
+          </button>
+        </div>
+
+        <div style={{ marginTop: '40px' }}>
+          <button
+            onClick={onLogin}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#fff',
+              textDecoration: 'underline',
+              fontSize: '0.95rem',
+              cursor: 'pointer'
+            }}
+          >
+            Already have an account? Sign In
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
 function App() {
   const [view, setView] = useState('loading');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userRole, setUserRole] = useState(null); // ✅ New state
+  const [userRole, setUserRole] = useState(null);
   const { theme, toggleTheme } = useTheme();
   const [showDropdown, setShowDropdown] = useState(false);
 
@@ -32,12 +133,12 @@ function App() {
     axios.get('/api/check-auth')
       .then((res) => {
         setIsAuthenticated(true);
-        setUserRole(res.data.user.role); // ✅ Save role
-        setView(res.data.user.role === 'admin' ? 'admin' : 'editor'); // ✅ Role-based view
+        setUserRole(res.data.user.role);
+        setView(res.data.user.role === 'admin' ? 'admin' : 'editor');
       })
       .catch(() => {
         setIsAuthenticated(false);
-        setView('login');
+        setView('home'); // Show Home page instead of login
       });
   }, []);
 
@@ -45,7 +146,7 @@ function App() {
     axios.post('/api/logout').then(() => {
       setIsAuthenticated(false);
       setUserRole(null);
-      setView('login');
+      setView('home');
       setShowDropdown(false);
     });
   };
@@ -112,12 +213,19 @@ function App() {
       </nav>
 
       {/* PAGES */}
+      {view === 'home' && (
+        <Home
+          onLogin={() => setView('login')}
+          onRegister={() => setView('register')}
+          onViewDemo={() => alert('Demo page coming soon!')}
+        />
+      )}
       {view === 'login' && (
         <Login
           onLoginSuccess={(user) => {
             setIsAuthenticated(true);
-            setUserRole(user.role); // ✅ Track user role
-            setView(user.role === 'admin' ? 'admin' : 'editor'); // ✅ Go to admin if role is admin
+            setUserRole(user.role);
+            setView(user.role === 'admin' ? 'admin' : 'editor');
           }}
           onForgotPassword={() => setView('forgot')}
         />
